@@ -38,9 +38,6 @@
     <ClCompile Include="brute.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="resource_manager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

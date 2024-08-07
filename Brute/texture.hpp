@@ -5,6 +5,7 @@
 class Texture {
 public:
     bool load_from_file(const std::string& filename);
+    void cleanup();
 
     const unsigned char* get_data() const { return data; }
     int get_width() const { return width; }

@@ -8,3 +8,11 @@ bool Texture::load_from_file(const std::string& filename) {
 
 	return data != nullptr;
 }
+
+void Texture::cleanup() {
+	if (data) {
+		stbi_image_free(data);
+
+		data = nullptr;
+	}
+}

@@ -11,6 +11,8 @@ class Brute {
 public:
 	Brute(const Config& config);
 
+	std::shared_ptr<Texture> load_texture(const std::string& filename);
+	
 	void run();
 
 private:
