@@ -1,6 +1,7 @@
 #pragma once
 
-#include "pch.h"
+#include <string>
+#include <vector>
 
 struct Config {
 	uint32_t windowWidth = 800;

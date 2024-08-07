@@ -1,8 +1,11 @@
 #pragma once
 
-#include "pch.h"
+#include <GLFW/glfw3.h>
+#include <vulkan/vulkan.hpp>
 
 #include "config.hpp"
+#include "resource_manager.hpp"
+#include "texture.hpp"
 
 class Brute {
 public:
@@ -26,4 +29,5 @@ private:
 	vk::DispatchLoaderDynamic dldi;
 
 	Config config;
+	ResourceManager<Texture> textureManager;
 };

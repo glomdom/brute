@@ -1,6 +1,6 @@
-#include "pch.h"
-
 #include "brute.hpp"
+
+#include <iostream>
 
 Brute::Brute(const Config& config) : config(config) {}
 
