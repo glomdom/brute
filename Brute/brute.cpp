@@ -4,6 +4,10 @@
 
 Brute::Brute(const Config& config) : config(config) {}
 
+std::shared_ptr<Texture> Brute::load_texture(const std::string& filename) {
+	return textureManager.load(filename);
+}
+
 void Brute::run() {
 	init_window();
 	init_vulkan();
@@ -130,6 +134,8 @@ void Brute::cleanup() {
 	if (config.enableValidationLayers) {
 		instance.destroyDebugUtilsMessengerEXT(debugMessenger, nullptr, dldi);
 	}
+
+	textureManager.cleanup();
 
 	instance.destroy();
 
