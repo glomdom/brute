@@ -4,6 +4,8 @@
 #include <memory>
 #include <string>
 
+#include "texture.hpp"
+
 template <typename Resource>
 class ResourceManager {
 public:
