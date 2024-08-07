@@ -10,7 +10,7 @@ std::shared_ptr<Resource> ResourceManager<Resource>::load(const std::string& fil
 	}
 
 	auto resource = std::make_shared<Resource>();
-	if (!resource->loadFromFile(filename)) {
+	if (!resource->load_from_file(filename)) {
 		throw std::runtime_error("failed to load resource: " + filename);
 	}
 
