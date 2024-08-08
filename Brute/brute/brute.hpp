@@ -9,27 +9,29 @@
 
 class Brute {
 public:
-	Brute(const Config& config);
+    explicit Brute(const Config& config);
 
-	std::shared_ptr<Texture> load_texture(const std::string& filename);
-	
-	void run();
+    [[nodiscard]] std::shared_ptr<Texture> load_texture(const std::string& filename);
+    
+    void run();
 
 private:
-	void init_window();
-	void init_vulkan();
-	void create_instance();
-	void setup_debug_messenger();
-	std::vector<const char*> get_required_extensions();
-	bool check_validation_layer_support();
-	void main_loop();
-	void cleanup();
+    void init_window();
+    void init_vulkan();
+    void create_instance();
+    void setup_debug_messenger();
+    
+    [[nodiscard]] std::vector<const char*> get_required_extensions() const;
+    [[nodiscard]] bool check_validation_layer_support() const;
+    
+    void main_loop();
+    void cleanup();
 
-	GLFWwindow* window;
-	vk::Instance instance;
-	vk::DebugUtilsMessengerEXT debugMessenger;
-	vk::DispatchLoaderDynamic dldi;
+    GLFWwindow* window{ nullptr };
+    vk::Instance instance;
+    vk::DebugUtilsMessengerEXT debugMessenger;
+    vk::DispatchLoaderDynamic dldi;
 
-	Config config;
-	ResourceManager<Texture> textureManager;
+    Config config;
+    ResourceManager<Texture> textureManager;
 };
