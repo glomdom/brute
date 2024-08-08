@@ -1,154 +1,124 @@
 #include "brute.hpp"
 
 #include <iostream>
+#include <format>
+#include <stdexcept>
 
-Brute::Brute(const Config& config) : config(config) {}
-
-std::shared_ptr<Texture> Brute::load_texture(const std::string& filename) {
-    return textureManager.load(filename);
+Brute::Brute(const Config& config) : config(config) {
+    window = std::make_unique<Window>(config.windowWidth, config.windowHeight, config.windowTitle);
+    vulkanSetup = std::make_unique<VulkanSetup>(config);
 }
 
-void Brute::run() {
-    init_window();
-    init_vulkan();
-    main_loop();
+Brute::~Brute() {
+    if (running) {
+        stopRequested = true;
+
+        if (asyncLoadThread.joinable()) {
+            asyncLoadCondition.notify_all();
+            asyncLoadThread.join();
+        }
+    }
+
     cleanup();
 }
 
-void Brute::init_window() {
-    if (!glfwInit()) {
-        throw std::runtime_error("failed to initialize glfw");
-    }
+std::shared_ptr<Texture> Brute::load_texture(const std::string& filename) {
+    log(std::format("loading texture: {}", filename));
+    auto texture = textureManager.load(filename);
 
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-
-    window = glfwCreateWindow(config.windowWidth, config.windowHeight, config.windowTitle.c_str(), nullptr, nullptr);
-    if (!window) {
-        throw std::runtime_error("failed to create glfw window");
-    }
-}
-
-void Brute::init_vulkan() {
-    create_instance();
-
-    if (config.enableValidationLayers) {
-        setup_debug_messenger();
-    }
-}
-
-void Brute::create_instance() {
-    if (config.enableValidationLayers && !check_validation_layer_support()) {
-        throw std::runtime_error("validation layers requested, but aren't available");
-    }
-
-    vk::ApplicationInfo appInfo{};
-    appInfo.pApplicationName = config.windowTitle.c_str();
-    appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.pEngineName = "Brute";
-    appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.apiVersion = VK_API_VERSION_1_2;
-
-    vk::InstanceCreateInfo createInfo{};
-    createInfo.pApplicationInfo = &appInfo;
-
-    auto extensions = get_required_extensions();
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-    createInfo.ppEnabledExtensionNames = extensions.data();
-
-    vk::DebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-    if (config.enableValidationLayers) {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(config.validationLayers.size());
-        createInfo.ppEnabledLayerNames = config.validationLayers.data();
-
-        debugCreateInfo = vk::DebugUtilsMessengerCreateInfoEXT{};
-        createInfo.pNext = &debugCreateInfo;
+    if (texture) {
+        log(std::format("loaded texture: {}", filename));
     } else {
-        createInfo.enabledLayerCount = 0;
-        createInfo.pNext = nullptr;
+        handle_error(std::format("failed to load texture: {}", filename));
     }
 
-    instance = vk::createInstance(createInfo);
-
-    dldi.init(instance, vkGetInstanceProcAddr);
+    return texture;
 }
 
-void Brute::setup_debug_messenger() {
-    if (!config.enableValidationLayers) {
-        return;
+std::future<std::shared_ptr<Texture>> Brute::load_texture_async(const std::string& filename) {
+    std::promise<std::shared_ptr<Texture>> promise;
+    std::future<std::shared_ptr<Texture>> future = promise.get_future();
+
+    {
+        std::lock_guard<std::mutex> lock(asyncLoadMutex);
+        asyncLoadQueue.emplace(std::move(promise), filename);
     }
 
-    vk::DebugUtilsMessengerCreateInfoEXT createInfo{};
-    createInfo.messageSeverity = vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError;
-    createInfo.messageType = vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance;
-    createInfo.pfnUserCallback = [](
-        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-        VkDebugUtilsMessageTypeFlagsEXT messageType,
-        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-        void* pUserData
-    ) -> VkBool32 {
-        std::cerr << std::format("validation layer: {}", pCallbackData->pMessage) << "\n";
-        
-        return VK_FALSE;
-    };
+    asyncLoadCondition.notify_one();
 
-    debugMessenger = instance.createDebugUtilsMessengerEXT(createInfo, nullptr, dldi);
+    return future;
 }
 
-std::vector<const char*> Brute::get_required_extensions() const {
-    uint32_t glfwExtensionCount = 0;
-    const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-    std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
-    
-    if (config.enableValidationLayers) {
-        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+void Brute::run() {
+    if (running) {
+        throw std::runtime_error("engine is already running");
     }
 
-    return extensions;
-}
+    running = true;
+    stopRequested = false;
 
-bool Brute::check_validation_layer_support() const {
-    auto availableLayers = vk::enumerateInstanceLayerProperties();
+    window->init();
+    vulkanSetup->init();
 
-    for (const char* layerName : config.validationLayers) {
-        bool layerFound = false;
+    asyncLoadThread = std::thread(&Brute::process_async_loads, this);
 
-        for (const auto& layerProperties : availableLayers) {
-            if (strcmp(layerName, layerProperties.layerName) == 0) {
-                layerFound = true;
-
-                break;
-            }
-        }
-
-        if (!layerFound) {
-            return false;
-        }
-    }
-
-    return true;
+    main_loop();
 }
 
 void Brute::main_loop() {
-    while (!glfwWindowShouldClose(window)) {
-        glfwPollEvents();
+    while (!window->shouldClose() && !stopRequested) {
+        window->pollEvents();
+    }
+
+    running = false;
+    stopRequested = true;
+
+    if (asyncLoadThread.joinable()) {
+        asyncLoadCondition.notify_all();
+        asyncLoadThread.join();
+    }
+
+    cleanup();
+}
+
+void Brute::process_async_loads() {
+    while (!stopRequested) {
+        std::unique_lock<std::mutex> lock(asyncLoadMutex);
+        asyncLoadCondition.wait(lock, [this] { return !asyncLoadQueue.empty() || stopRequested; });
+
+        while (!asyncLoadQueue.empty()) {
+            auto [promise, filename] = std::move(asyncLoadQueue.front());
+            asyncLoadQueue.pop();
+
+            lock.unlock();
+
+            try {
+                auto texture = load_texture(filename);
+                promise.set_value(texture);
+            } catch (...) {
+                promise.set_exception(std::current_exception());
+            }
+
+            lock.lock();
+        }
     }
 }
 
 void Brute::cleanup() {
-    if (config.enableValidationLayers) {
-        instance.destroyDebugUtilsMessengerEXT(debugMessenger, nullptr, dldi);
+    if (vulkanSetup) {
+        vulkanSetup->cleanup();
+    }
+    
+    if (window) {
+        window->cleanup();
     }
 
     textureManager.cleanup();
+}
+void Brute::log(const std::string& message) const {
+    std::cout << message << std::endl;
+}
 
-    if (instance) {
-        instance.destroy();
-    }
-
-    if (window) {
-        glfwDestroyWindow(window);
-    }
-
-    glfwTerminate();
+void Brute::handle_error(const std::string& message) const {
+    std::cerr << message << std::endl;
 }
