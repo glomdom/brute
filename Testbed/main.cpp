@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <brute.hpp>
+#include <brute/brute.hpp>
 
 int main() {
     try {

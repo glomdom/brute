@@ -117,7 +117,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Brute\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Brute\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -137,7 +137,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Brute\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Brute\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -148,16 +148,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\brute\brute.hpp" />
-    <ClInclude Include="include\brute\config.hpp" />
-    <ClInclude Include="include\framework\framework.h" />
-    <ClInclude Include="include\resource_manager\resource_manager.hpp" />
-    <ClInclude Include="include\texture\texture.hpp" />
+    <ClInclude Include="brute\brute.hpp" />
+    <ClInclude Include="brute\config.hpp" />
+    <ClInclude Include="framework\framework.h" />
+    <ClInclude Include="resource_manager\resource_manager.hpp" />
+    <ClInclude Include="texture\texture.hpp" />
     <ClInclude Include="vendor\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\brute\brute.cpp" />
-    <ClCompile Include="src\texture\texture.cpp" />
+    <ClCompile Include="brute\brute.cpp" />
+    <ClCompile Include="texture\texture.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

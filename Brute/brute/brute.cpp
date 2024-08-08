@@ -22,6 +22,9 @@ void Brute::init_window() {
 	glfwWindowHint(GLFW_RESIZABLE, true);
 
 	window = glfwCreateWindow(config.windowWidth, config.windowHeight, config.windowTitle.c_str(), nullptr, nullptr);
+	if (!window) {
+		throw std::runtime_error("failed to create glfw window");
+	}
 }
 
 void Brute::init_vulkan() {
@@ -137,8 +140,13 @@ void Brute::cleanup() {
 
 	textureManager.cleanup();
 
-	instance.destroy();
+	if (instance) {
+		instance.destroy();
+	}
 
-	glfwDestroyWindow(window);
+	if (window) {
+		glfwDestroyWindow(window);
+	}
+
 	glfwTerminate();
 }
