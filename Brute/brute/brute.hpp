@@ -3,9 +3,9 @@
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.hpp>
 
-#include "config.hpp"
-#include "resource_manager.hpp"
-#include "texture.hpp"
+#include "brute/config.hpp"
+#include "resource_manager/resource_manager.hpp"
+#include "texture/texture.hpp"
 
 class Brute {
 public:
