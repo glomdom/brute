@@ -150,12 +150,16 @@
   <ItemGroup>
     <ClInclude Include="brute\brute.hpp" />
     <ClInclude Include="brute\config.hpp" />
+    <ClInclude Include="brute\vulkan_setup.hpp" />
+    <ClInclude Include="brute\window.hpp" />
     <ClInclude Include="resource_manager\resource_manager.hpp" />
     <ClInclude Include="texture\texture.hpp" />
     <ClInclude Include="vendor\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="brute\brute.cpp" />
+    <ClCompile Include="brute\vulkan_setup.cpp" />
+    <ClCompile Include="brute\window.cpp" />
     <ClCompile Include="texture\texture.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

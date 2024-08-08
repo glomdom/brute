@@ -30,12 +30,24 @@
     <ClInclude Include="texture\texture.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="brute\window.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="brute\vulkan_setup.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="brute\brute.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="texture\texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="brute\window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="brute\vulkan_setup.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
