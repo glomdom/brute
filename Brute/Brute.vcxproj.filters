@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="framework\framework.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="brute\brute.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
