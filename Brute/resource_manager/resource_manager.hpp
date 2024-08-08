@@ -6,28 +6,34 @@
 #include <stdexcept>
 #include <iostream>
 #include <format>
-#include <mutex>
+#include <shared_mutex>
 
 template <typename Resource>
 class ResourceManager {
 public:
     [[nodiscard]] std::shared_ptr<Resource> load(const std::string& filename);
-    [[nodiscord]] std::shared_ptr<Resource> get(const std::string& filename) const;
+    [[nodiscard]] std::shared_ptr<Resource> get(const std::string& filename) const;
 
     void cleanup();
     void unload(const std::string& filename);
     void unload_all();
 
 private:
+    mutable std::shared_mutex resource_mutex;
     std::unordered_map<std::string, std::shared_ptr<Resource>> resources;
-
-    mutable std::mutex resource_mutex;
 };
 
 template <typename Resource>
 [[nodiscard]] std::shared_ptr<Resource> ResourceManager<Resource>::load(const std::string& filename) {
-    std::scoped_lock lock(resource_mutex);
+    {
+        std::shared_lock lock(resource_mutex);
+        
+        if (resources.contains(filename)) {
+            return resources.at(filename);
+        }
+    }
 
+    std::unique_lock lock(resource_mutex);
     if (resources.contains(filename)) {
         return resources.at(filename);
     }
@@ -44,8 +50,7 @@ template <typename Resource>
 
 template <typename Resource>
 [[nodiscard]] std::shared_ptr<Resource> ResourceManager<Resource>::get(const std::string& filename) const {
-    std::scoped_lock lock(resource_mutex);
-
+    std::shared_lock lock(resource_mutex);
     if (resources.contains(filename)) {
         return resources.at(filename);
     }
@@ -55,27 +60,26 @@ template <typename Resource>
 
 template <typename Resource>
 void ResourceManager<Resource>::cleanup() {
-    std::scoped_lock lock(resource_mutex);
-
+    std::unique_lock lock(resource_mutex);
     for (const auto& [filename, resource] : resources) {
         std::cout << std::format("cleaned up resource: {}", filename) << "\n";
 
         resource->cleanup();
     }
 
-    unload_all();
+    resources.clear();
 }
 
 template <typename Resource>
 void ResourceManager<Resource>::unload(const std::string& filename) {
-    std::scoped_lock lock(resource_mutex);
+    std::unique_lock lock(resource_mutex);
 
     resources.erase(filename);
 }
 
 template <typename Resource>
 void ResourceManager<Resource>::unload_all() {
-    std::scoped_lock lock(resource_mutex);
+    std::unique_lock lock(resource_mutex);
 
     std::cout << "unloading all textures" << "\n";
     resources.clear();

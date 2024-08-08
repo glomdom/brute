@@ -15,30 +15,30 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\framework\framework.h">
+    <ClInclude Include="framework\framework.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\brute\brute.hpp">
+    <ClInclude Include="brute\brute.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\brute\config.hpp">
+    <ClInclude Include="brute\config.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="vendor\stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\resource_manager\resource_manager.hpp">
+    <ClInclude Include="resource_manager\resource_manager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\texture\texture.hpp">
+    <ClInclude Include="texture\texture.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\brute\brute.cpp">
+    <ClCompile Include="brute\brute.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\texture\texture.cpp">
+    <ClCompile Include="texture\texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
