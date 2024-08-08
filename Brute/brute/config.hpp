@@ -4,12 +4,12 @@
 #include <vector>
 
 struct Config {
-	uint32_t windowWidth = 800;
-	uint32_t windowHeight = 600;
-	std::string windowTitle = "Brute Default Title";
+    uint32_t windowWidth = 800;
+    uint32_t windowHeight = 600;
+    std::string windowTitle = "Brute Default Title";
 
-	bool enableValidationLayers = true;
-	std::vector<const char*> validationLayers = {
-		"VK_LAYER_KHRONOS_validation"
-	};
+    bool enableValidationLayers = true;
+    std::vector<const char*> validationLayers = {
+        "VK_LAYER_KHRONOS_validation"
+    };
 };
